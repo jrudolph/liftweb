@@ -179,7 +179,12 @@ object DB {
 
   def statement[T](db : SuperConnection)(f : (Statement) => T) : T =  {
     Helpers.calcTime {
-      val st = db.createStatement
+      val st =
+        if (logFuncs.isEmpty) {
+            db.createStatement
+        } else {
+            new LoggedStatement(db.createStatement)
+        }
       queryTimeout.foreach(to => st.setQueryTimeout(to))
       try {
         (st.toString, f(st))
@@ -193,7 +198,7 @@ object DB {
     Helpers.calcTime(
       statement(db) {st =>
         f(st.executeQuery(query))
-      }) match {case (time, res) => runLogger(query, time); res}
+      }) match {case (time, res) => runLogger(query, time); res} // TODO: This will double-log. Should it be modified?
   }
 
 
@@ -289,7 +294,12 @@ object DB {
 
   def prepareStatement[T](statement : String, conn: SuperConnection)(f : (PreparedStatement) => T) : T = {
     Helpers.calcTime {
-      val st = conn.prepareStatement(statement)
+      val st =
+        if (logFuncs.isEmpty) {
+            conn.prepareStatement(statement)
+        } else {
+            new LoggedPreparedStatement (statement, conn.prepareStatement(statement))
+        }
       queryTimeout.foreach(to => st.setQueryTimeout(to))
       try {
         (st.toString, f(st))
@@ -300,7 +310,12 @@ object DB {
 
   def prepareStatement[T](statement : String, keys: Int, conn: SuperConnection)(f : (PreparedStatement) => T) : T = {
     Helpers.calcTime{
-      val st = conn.prepareStatement(statement, keys)
+      val st =
+        if (logFuncs.isEmpty) {
+            conn.prepareStatement(statement, keys)
+        } else {
+            new LoggedPreparedStatement(statement, conn.prepareStatement(statement, keys))
+        }
       queryTimeout.foreach(to => st.setQueryTimeout(to))
       try {
         (st.toString, f(st))
