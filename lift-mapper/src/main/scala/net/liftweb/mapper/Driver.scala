@@ -131,7 +131,9 @@ object DriverType {
       case (SqlServerDriver.name,_,_) => SqlServerDriver
       case (OracleDriver.name,_,_) => OracleDriver
       case (MaxDbDriver.name,_,_) => MaxDbDriver
-      case x => throw new Exception("Could not determine proper DriverType for connection: " + x)
+      case x => throw new Exception("There is no lift DB driver available for your database type ("+x+") "+
+                                    "See the lift wiki (http://wiki.liftweb.net/index.php/Category:Database) "+
+                                    "for a list of supported DBMS.")
     }
   }
 }
