@@ -601,7 +601,7 @@ trait MetaMegaProtoUser[ModelType <: MegaProtoUser[ModelType]] extends KeyedMeta
       theUser.validate match {
         case Nil =>
           theUser.save
-          S.notice(S.??("profle.updated"))
+          S.notice(S.??("profile.updated"))
           S.redirectTo(homePage)
 
         case xs => S.error(xs) ; editFunc(Full(innerEdit _))
